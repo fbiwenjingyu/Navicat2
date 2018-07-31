@@ -4,11 +4,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 import com.alibaba.fastjson.JSON;
 
@@ -165,6 +168,23 @@ public class JsonFileUtils {
 			}
 		}
 		return 	ret;
+	}
+	
+	public void modityConnByName(String oldName,MyConnection newconn) {
+		List<MyConnection> list = readListFromFile();
+		if(list!=null && list.size() > 0) {
+			for(MyConnection conn : list) {
+				if(oldName.equalsIgnoreCase(conn.getConnName())) {
+					try {
+						BeanUtils.copyProperties(conn, newconn);
+					} catch (IllegalAccessException | InvocationTargetException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+		}
 	}
 
 }

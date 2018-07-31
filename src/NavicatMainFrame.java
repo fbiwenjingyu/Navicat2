@@ -98,7 +98,7 @@ public class NavicatMainFrame extends JFrame{
 	 	addItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				NavicatMainFrame.this.connDialog = new ConnDialog(NavicatMainFrame.this);
+				NavicatMainFrame.this.connDialog = new ConnDialog(NavicatMainFrame.this,OperateType.CREATE,currentRightClickedConnName);
 				
 			}
 		});
@@ -128,6 +128,7 @@ public class NavicatMainFrame extends JFrame{
 	 	editItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				NavicatMainFrame.this.connDialog = new ConnDialog(NavicatMainFrame.this,OperateType.MODIFY,currentRightClickedConnName);
 				
 			}
 		});
@@ -422,7 +423,7 @@ public class NavicatMainFrame extends JFrame{
 		newConn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				NavicatMainFrame.this.connDialog = new ConnDialog(NavicatMainFrame.this);
+				NavicatMainFrame.this.connDialog = new ConnDialog(NavicatMainFrame.this,OperateType.CREATE,currentRightClickedConnName);
 				
 				
 			}

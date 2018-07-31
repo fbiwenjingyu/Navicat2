@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 public class ConnDialog extends JDialog{
 	private static final long serialVersionUID = 1L;
 	private JFrame parent;
+	private OperateType opType;
 	private static final int DEFAULT_WIDTH = 300;
 	private static final int DEFAULT_HEIGHT = 310;
 	private String connName;
@@ -24,7 +25,12 @@ public class ConnDialog extends JDialog{
 	private int port;
 	private String username;
 	private String password;
-	
+	private String currentRightClickedConnName;
+	JTextField connNameField;
+	JTextField ipAddressField;
+	JTextField portField ;
+	JTextField usernameField;
+	JTextField passwordField;
 	public String getConnName() {
 		return connName;
 	}
@@ -65,18 +71,32 @@ public class ConnDialog extends JDialog{
 		this.password = password;
 	}
 
-	public ConnDialog(JFrame owner) {
+	public ConnDialog(JFrame owner,OperateType opType,String currentRightClickedConnName) {
 		super(owner,"MySQL-新建连接",true);
 		parent = owner;
+		this.opType = opType;
+		this.currentRightClickedConnName = currentRightClickedConnName;
 		JPanel inputPanel = new JPanel();
 		inputPanel.setMinimumSize(new Dimension(180, 220));
 		inputPanel.setBorder(BorderFactory.createEtchedBorder());
 		
-		JTextField connNameField = new JTextField("",20);
-		JTextField ipAddressField = new JTextField("localhost",20);
-		JTextField portField = new JTextField("3306",20);
-		JTextField usernameField= new JTextField("root",20);
-		JTextField passwordField = new JPasswordField("",20);
+		if(opType == OperateType.CREATE) {
+			connNameField = new JTextField("",20);
+			ipAddressField = new JTextField("localhost",20);
+			portField = new JTextField("3306",20);
+			usernameField= new JTextField("root",20);
+			passwordField = new JPasswordField("",20);
+		}else if(opType == OperateType.MODIFY) {
+			this.setTitle("MySQL-编辑连接");
+			JsonFileUtils utils = new JsonFileUtils();
+			MyConnection connection = utils.findConnByName(currentRightClickedConnName);
+			connNameField = new JTextField(connection.getConnName(),20);
+			ipAddressField = new JTextField(connection.getIpAddress(),20);
+			portField = new JTextField(String.valueOf(connection.getPort()),20);
+			usernameField= new JTextField(connection.getUsername(),20);
+			passwordField = new JPasswordField(connection.getPassword(),20);
+		}
+		
 		
 		JCheckBox savePassBox = new JCheckBox("保存密码");
 		savePassBox.setSelected(true);
@@ -155,6 +175,7 @@ public class ConnDialog extends JDialog{
 					JOptionPane.showMessageDialog(ConnDialog.this, "请输入密码");
 					return;
 				}
+				
 				ipAddress = ipAddressField.getText();
 				port = Integer.parseInt(portField.getText());
 				username = usernameField.getText();
@@ -164,29 +185,48 @@ public class ConnDialog extends JDialog{
 				}else {
 					connName = connNameField.getText();
 				}
-				
-				MyConnection conn = new MyConnection();
-				conn.setConnName(connName);
-				conn.setIpAddress(ipAddress);
-				conn.setPort(port);
-				conn.setUsername(username);
-				conn.setPassword(password);
-				JsonFileUtils utils = new JsonFileUtils();
-				Result result = utils.appendConnToFile(conn);
-				if(result == Result.failure) {
-					JOptionPane.showMessageDialog(ConnDialog.this, "连接名: " + conn.getConnName() + "已存在","",JOptionPane.ERROR_MESSAGE);
-				}else if(result == Result.success) {
-					JOptionPane.showMessageDialog(ConnDialog.this, "新建连接成功","",JOptionPane.INFORMATION_MESSAGE);
+				if(ConnDialog.this.opType == OperateType.CREATE) {
+					MyConnection conn = new MyConnection();
+					conn.setConnName(connName);
+					conn.setIpAddress(ipAddress);
+					conn.setPort(port);
+					conn.setUsername(username);
+					conn.setPassword(password);
+					JsonFileUtils utils = new JsonFileUtils();
+					Result result = utils.appendConnToFile(conn);
+					if(result == Result.failure) {
+						JOptionPane.showMessageDialog(ConnDialog.this, "连接名: " + conn.getConnName() + "已存在","",JOptionPane.ERROR_MESSAGE);
+					}else if(result == Result.success) {
+						JOptionPane.showMessageDialog(ConnDialog.this, "新建连接成功","",JOptionPane.INFORMATION_MESSAGE);
+						ConnDialog.this.dispose();
+						parent.dispose();
+						try {
+								new NavicatMainFrame();
+						} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+						}
+						
+					}
+				}else if(ConnDialog.this.opType == OperateType.MODIFY) {
+					JsonFileUtils utils = new JsonFileUtils();
+					MyConnection conn = new MyConnection();
+					conn.setConnName(connName);
+					conn.setIpAddress(ipAddress);
+					conn.setPort(port);
+					conn.setUsername(username);
+					conn.setPassword(password);
+					utils.modityConnByName(currentRightClickedConnName, conn);
 					ConnDialog.this.dispose();
 					parent.dispose();
 					try {
-							new NavicatMainFrame();
+						new NavicatMainFrame();
 					} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-					
 				}
+			
 				
 			}
 		});
