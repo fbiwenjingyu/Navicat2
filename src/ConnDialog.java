@@ -216,15 +216,23 @@ public class ConnDialog extends JDialog{
 					conn.setPort(port);
 					conn.setUsername(username);
 					conn.setPassword(password);
-					utils.modityConnByName(currentRightClickedConnName, conn);
-					ConnDialog.this.dispose();
-					parent.dispose();
-					try {
-						new NavicatMainFrame();
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					Result result = utils.modifyConnByName(currentRightClickedConnName, conn);
+					if(result == Result.nameExist) {
+						JOptionPane.showMessageDialog(ConnDialog.this, "连接名: " + conn.getConnName() + "已存在","",JOptionPane.ERROR_MESSAGE);
+					}else if(result == Result.failure) {
+						JOptionPane.showMessageDialog(ConnDialog.this, "修改连接失败","",JOptionPane.ERROR_MESSAGE);
+					}else if(result == Result.success) {
+						JOptionPane.showMessageDialog(ConnDialog.this, "修改连接成功","",JOptionPane.INFORMATION_MESSAGE);
+						ConnDialog.this.dispose();
+						parent.dispose();
+						try {
+							new NavicatMainFrame();
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
+					
 				}
 			
 				

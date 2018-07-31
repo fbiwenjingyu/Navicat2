@@ -170,20 +170,34 @@ public class JsonFileUtils {
 		return 	ret;
 	}
 	
-	public void modityConnByName(String oldName,MyConnection newconn) {
-		List<MyConnection> list = readListFromFile();
-		if(list!=null && list.size() > 0) {
-			for(MyConnection conn : list) {
-				if(oldName.equalsIgnoreCase(conn.getConnName())) {
-					try {
-						BeanUtils.copyProperties(conn, newconn);
-					} catch (IllegalAccessException | InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+	public Result modifyConnByName(String oldName,MyConnection newconn) {
+		if(!newconn.getConnName().equals(oldName)) {
+			if(isConnNameExist(newconn.getConnName())) {
+				return Result.nameExist;
+			}
+		}
+		try {
+			List<MyConnection> list = readListFromFile();
+			if(list!=null && list.size() > 0) {
+				for(MyConnection conn : list) {
+					if(oldName.equalsIgnoreCase(conn.getConnName())) {
+						try {
+							BeanUtils.copyProperties(conn, newconn);
+						} catch (IllegalAccessException | InvocationTargetException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						break;
 					}
-					break;
 				}
 			}
+			String jsonStr = listToJsonStr(list);
+			writeFile(fileName,jsonStr);
+			return Result.success;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return Result.failure;
 		}
 	}
 
