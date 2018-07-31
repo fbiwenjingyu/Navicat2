@@ -118,12 +118,17 @@ public class Database {
 		String myConnURL = myURL + getMyipAddress() + ":" + getMyPort() + "/";
 		Vector<String> names = new Vector<>();
 		Class.forName(DRIVER);
-		Connection con = (Connection) DriverManager.getConnection(myConnURL,getMyUSERNAME(),getMyPASSWORD());
-		DatabaseMetaData metaData = (DatabaseMetaData) con.getMetaData();
-		ResultSet rs = metaData.getCatalogs();
-		while(rs.next()) {
-			String databasename = rs.getString(1);
-			names.add(databasename);
+		try {
+			Connection con = (Connection) DriverManager.getConnection(myConnURL,getMyUSERNAME(),getMyPASSWORD());
+			DatabaseMetaData metaData = (DatabaseMetaData) con.getMetaData();
+			ResultSet rs = metaData.getCatalogs();
+			while(rs.next()) {
+				String databasename = rs.getString(1);
+				names.add(databasename);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return names;
 	}
